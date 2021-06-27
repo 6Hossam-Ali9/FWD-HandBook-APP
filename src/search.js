@@ -54,7 +54,7 @@ class Search extends React.Component{
         // console.log(shelf);
         BooksAPI.update(book, shelf)
         .then(() => this.props.onUpdate())//used it here to link between the main and the search pages to have the same Library
-        //don't know if it is a problem or not my the page have to rerender after updating
+        //don't know if it is a problem or not but the page have to rerender after updating
     }
     render(){
         const {searchText, books} = this.state;
