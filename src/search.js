@@ -5,21 +5,16 @@ import './App.css'
 import ShowBooks from './book'
 
 
-class search extends React.Component{
+class Search extends React.Component{
     state={
         books:[],
-        myLib:[],
         searchText:''
-    }
-    componentDidMount(){
-        BooksAPI.getAll()
-        .then((myLib) => this.setState(() => ({myLib})))
     }
     searchHandler = (msg) => {
         this.setState((curr) => ({
             searchText: msg
         }))
-        if(msg !== ''){  // handler for the api errors
+        if(msg.trim() !== ''){  // handler for the api errors
             this.searchResults(msg);
         } else {
             this.setState((curr) => ({
@@ -35,7 +30,7 @@ class search extends React.Component{
                 //console.log(this.state.myLib);
                 books.forEach((book) => {
                     book.shelf = 'none';
-                    this.state.myLib.forEach((mybook) => {
+                    this.props.myLib.forEach((mybook) => {
                         // console.log(book.title, mybook.title);
                         // console.log(book.id, mybook.id);
                         if(book.id === mybook.id){  //connecting between my library and the search to fix the selected shelf
@@ -57,8 +52,9 @@ class search extends React.Component{
     updateShelf = (shelf, book) => {  //obviously, updating the shelf and taking the book to my library
         // console.log(book);
         // console.log(shelf);
-        BooksAPI.update(book, shelf);
-        // console.log(book);
+        BooksAPI.update(book, shelf)
+        .then(() => this.props.onUpdate())//used it here to link between the main and the search pages to have the same Library
+        //don't know if it is a problem or not my the page have to rerender after updating
     }
     render(){
         const {searchText, books} = this.state;
@@ -78,4 +74,4 @@ class search extends React.Component{
     }
 }
 
-export default search
+export default Search

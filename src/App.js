@@ -1,25 +1,35 @@
 import React from 'react'
-//import * as BooksAPI from './BooksAPI'
-import { Route } from 'react-router-dom'
+import * as BooksAPI from './BooksAPI'
+import { Route, Switch } from 'react-router-dom'
 import './App.css'
-import myShelf from'./main'
-import search from './search'
+import MyShelf from'./main'
+import Search from './search'
 
 class BooksApp extends React.Component {
-  state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
+  state ={
+    myLib:[]
   }
-
+  onUpdate = () => {   //I put this fuction outside the {componentDidMount} so, I can call it back to render again on every update
+    BooksAPI.getAll()
+    .then((books) => {
+      this.setState((curr) => ({
+        myLib: books
+      }))
+    })
+  }
+  componentDidMount(){
+    this.onUpdate();
+  }
+  
   render() {
+    const {myLib} = this.state;
     return (
       <div className="app">
-          <Route exact path='/' component={myShelf}/>
-          <Route exact path ='/search' component={search} />
+        <Switch>
+          <Route exact path='/' component={() => (<MyShelf myLib = {myLib} onUpdate = {() => this.onUpdate()}/>)} />
+          <Route exact path ='/search' component={() => (<Search  myLib = {myLib} onUpdate = {() => this.onUpdate()}/>)}/>
+          <Route  render = {() => (<h1>Not Found!!</h1>)}/>
+        </Switch>
       </div>
     )
   }

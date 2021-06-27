@@ -6,47 +6,24 @@ import ShowBooks from './book'
 
 
 class myShelf extends React.Component{
-    state={
-        books:[],
-        currReading:[],
-        wantToRead:[],
-        doneRead:[]
-    }
+  state ={
+    books: this.props.myLib
+  }
 
     updateShelf = (shelf, book) => {
       BooksAPI.update(book, shelf)
       .then(()=>BooksAPI.getAll())
-      .then((books) => this.updateBooks(books));
+      .then((books) => this.updateBooks(books))
+      .then(() => this.props.onUpdate());//used it here to link between the main and the search pages to have the same Library
   }
 
     updateBooks = (books) => {
-        let currBk = [];
-        let WTR = [];
-        let done = [];
-        let allbooks=[];
-        if(Array.isArray(books)){
-            currBk = books.filter((book) => book.shelf==='currentlyReading');
-            WTR = books.filter((book) => book.shelf==='wantToRead');
-            done = books.filter((book) => book.shelf==='read');
-            allbooks = [...currBk, ...WTR, ...done]
-        }
         this.setState((curr) => ({
-            currReading: currBk,
-            wantToRead: WTR,
-            doneRead: done,
-            books: allbooks  //I needed this so I can search in all the books at once and not to search in every shelf alone
+            books
         }))
     }
-    componentDidMount(){
-        BooksAPI.getAll()
-        .then((books) => {
-            //console.log(books);
-            this.updateBooks(books);
-        })
-    }
     render(){
-        const {currReading , wantToRead, doneRead} = this.state;
-        
+      const {books} = this.state;
         return(
             <div className="list-books">
             <div className="list-books-title">
@@ -56,15 +33,15 @@ class myShelf extends React.Component{
               <div>
                 <div className="bookshelf">
                   <h2 className="bookshelf-title">Currently Reading</h2>
-                  <ShowBooks books={currReading} update = {this.updateShelf}/>
+                  <ShowBooks books={books.filter((book) => book.shelf==='currentlyReading')} update = {this.updateShelf}/>
                 </div>
                 <div className="bookshelf">
                   <h2 className="bookshelf-title">Want to Read</h2>
-                  <ShowBooks books={wantToRead} update = {this.updateShelf}/>
+                  <ShowBooks books={books.filter((book) => book.shelf==='wantToRead')} update = {this.updateShelf}/>
                 </div>
                 <div className="bookshelf">
                   <h2 className="bookshelf-title">Read</h2>
-                  <ShowBooks books={doneRead} update = {this.updateShelf}/>
+                  <ShowBooks books={books.filter((book) => book.shelf==='read')} update = {this.updateShelf}/>
                 </div>
               </div>
             </div>
